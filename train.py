@@ -19,7 +19,7 @@ import torchvision.datasets as datasets
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from utils import AverageMeter, accuracy, ProgressMeter
 
-import rmnet
+import models
 
 IMAGENET_TRAINSET_SIZE = 1281167
 
@@ -70,8 +70,24 @@ parser.add_argument('--multiprocessing-distributed', action='store_true',
                          'N processes per node, which has N GPUs. This is the '
                          'fastest way to use PyTorch for either single node or '
                          'multi node data parallel training')
-
 best_acc1 = 0
+
+def sgd_optimizer(model, lr, momentum, weight_decay, use_custwd):
+    params = []
+    for key, value in model.named_parameters():
+        if not value.requires_grad:
+            continue
+        apply_weight_decay = weight_decay
+        apply_lr = lr
+        if (use_custwd and ('rbr_dense' in key or 'rbr_1x1' in key)) or 'bias' in key or 'bn' in key:
+            apply_weight_decay = 0
+            print('set weight decay=0 for {}'.format(key))
+        if 'bias' in key:
+            apply_lr = 2 * lr       #   Just a Caffe-style common practice. Made no difference.
+        params += [{'params': [value], 'lr': apply_lr, 'weight_decay': apply_weight_decay}]
+    optimizer = torch.optim.SGD(params, lr, momentum=momentum)
+    return optimizer
+  
 def main():
     args = parser.parse_args()
 
@@ -124,7 +140,7 @@ def main_worker(gpu, ngpus_per_node, args):
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
 
-    model = rmnet.__dict__[args.arch]()
+    model = models.__dict__[args.arch]()
 
     if not torch.cuda.is_available():
         print('using CPU, this will be slow')
@@ -156,8 +172,9 @@ def main_worker(gpu, ngpus_per_node, args):
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-
+    # optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    optimizer = sgd_optimizer(model, args.lr, args.momentum, args.weight_decay, args.custwd) # better for repvgg
+    
     lr_scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=args.epochs * IMAGENET_TRAINSET_SIZE // args.batch_size // ngpus_per_node)
 
     # optionally resume from a checkpoint
@@ -356,3 +373,6 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 if __name__ == '__main__':
     main()
+    
+    
+
