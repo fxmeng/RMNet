@@ -138,9 +138,9 @@ class RMBlock(nn.Module):
         return conv_w, conv_b
 
 
-class RMNet(nn.Module):
+class RMNeXt(nn.Module):
     def __init__(self, num_blocks, num_classes=1000, base_wide=64, expand_ratio=2, cpg=1):
-        super(RMNet, self).__init__()
+        super(RMNeXt, self).__init__()
         self.in_planes = min(64, base_wide)
         if num_classes==1000:
             self.layer0 = nn.Sequential(*[RepBlock(3, self.in_planes, stride=2), RepBlock(self.in_planes, self.in_planes, stride=2)])
@@ -197,21 +197,21 @@ class RMNet(nn.Module):
         return nn.Sequential(*blocks)
 
 
-def rmnet41_64x5_g16(num_classes=1000):
-    return RMNet([2, 3, 5, 3], num_classes=num_classes, base_wide=64, expand_ratio=5, cpg=16)
+def rmnext41_64x5_g16(num_classes=1000):
+    return RMNeXt([2, 3, 5, 3], num_classes=num_classes, base_wide=64, expand_ratio=5, cpg=16)
 
 
-def rmnet50_64x5_g32(num_classes=1000):
-    return RMNet([3, 4, 6, 3], num_classes=num_classes, base_wide=64, expand_ratio=5, cpg=32)
+def rmnext50_64x5_g32(num_classes=1000):
+    return RMNeXt([3, 4, 6, 3], num_classes=num_classes, base_wide=64, expand_ratio=5, cpg=32)
 
 
-def rmnet50_64x6_g32(num_classes=1000):
-    return RMNet([3, 4, 6, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=32)
+def rmnext50_64x6_g32(num_classes=1000):
+    return RMNeXt([3, 4, 6, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=32)
 
 
-def rmnet101_64x6_g16(num_classes=1000):
-    return RMNet([3, 4, 23, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=16)
+def rmnext101_64x6_g16(num_classes=1000):
+    return RMNeXt([3, 4, 23, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=16)
 
 
-def rmnet152_64x6_g32(num_classes=1000):
-    return RMNet([3, 8, 36, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=32)
+def rmnext152_64x6_g32(num_classes=1000):
+    return RMNeXt([3, 8, 36, 3], num_classes=num_classes, base_wide=64, expand_ratio=6, cpg=32)
