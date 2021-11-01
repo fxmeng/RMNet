@@ -16,13 +16,13 @@ class RepBlock(nn.Module):
         self.bn33 = nn.BatchNorm2d(out_planes)
         self.conv11 = nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, padding=0, bias=False)
         self.bn11 = nn.BatchNorm2d(out_planes)
-        self.running = nn.BatchNorm2d(out_planes)
+        #self.running = nn.BatchNorm2d(out_planes)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         out = self.bn33(self.conv33(x))
         out += self.bn11(self.conv11(x))
-        self.running(out)
+        #self.running(out)
         return self.relu(out)
 
     def deploy(self, merge_bn=False):
@@ -32,12 +32,12 @@ class RepBlock(nn.Module):
         conv33_bn33.weight.data += F.pad(conv11_bn11.weight.data, [1, 1, 1, 1])
         conv33_bn33.bias.data += conv11_bn11.bias.data
 
-        self.running.weight.data = torch.sqrt(self.running.running_var + self.running.eps)
-        self.running.bias.data = self.running.running_mean
-        if merge_bn:
-            return [conv33_bn33, self.relu]
-        else:
-            return [conv33_bn33, self.running, self.relu]
+        #self.running.weight.data = torch.sqrt(self.running.running_var + self.running.eps)
+        #self.running.bias.data = self.running.running_mean
+        #if merge_bn:
+        return [conv33_bn33, self.relu]
+        #else:
+        #    return [conv33_bn33, self.running, self.relu]
 
 
 class RMBlock(nn.Module):
@@ -143,9 +143,9 @@ class RMNeXt(nn.Module):
         super(RMNeXt, self).__init__()
         self.in_planes = min(64, base_wide)
         if num_classes==1000:
-            self.layer0 = nn.Sequential(*[RepBlock(3, self.in_planes, stride=2), RepBlock(self.in_planes, self.in_planes, stride=2)])
+            self.stage0 = nn.Sequential(*[RepBlock(3, self.in_planes, stride=2), RepBlock(self.in_planes, self.in_planes, stride=2)])
         else:
-            self.layer0 = RepBlock(3, self.in_planes, stride=1)
+            self.stage0 = RepBlock(3, self.in_planes, stride=1)
         self.layer1 = self._make_layer(base_wide, num_blocks[0], expand_ratio, cpg, stride=1)
         self.layer2 = self._make_layer(base_wide * 2, num_blocks[1], expand_ratio, cpg * 2, stride=2)
         self.layer3 = self._make_layer(base_wide * 4, num_blocks[2], expand_ratio, cpg * 4, stride=2)
