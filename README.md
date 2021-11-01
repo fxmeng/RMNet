@@ -38,7 +38,7 @@ python train.py -a rmrep_69 -e checkpoint/rmrep_69.pth.tar [imagenet-folder with
 Our model achieves the following performance on :
 
 ### Help RepVGG achieve better performance even when the depth is large
-| Arch                    | Top-1 Accuracy(%) | Top-5 Accuracy(%) | Train FLOPs | Test FLOPs |
+| Arch                    | Top-1 Accuracy(%) | Top-5 Accuracy(%) | Train FLOPs(G) | Test FLOPs(M) |
 | ----------------------- | ----------------- | ----------------- | ----------- | ---------- |
 | RepVGG-21               | 72.508            | 90.840            | 2.4         | 2.1        |
 | **RepVGG-21(RM 0.25)**  | **72.590**        | **90.924**        | **2.1**     | **2.1**    |
@@ -51,13 +51,13 @@ Our model achieves the following performance on :
 
 
 ### Image Classification on ImageNet
-| Model name         | Top 1 Accuracy  | Top 5 Accuracy |
+| Model name         | Top 1 Accuracy(%)  | Top 5 Accuracy(%) |
 | ------------------ |---------------- | -------------- |
-| RMNeXt 41x5\_16  |     78.498%   |      94.086% |
-| RMNeXt 50x5\_32  |     79.076%   |      94.444% |
-| RMNeXt 50x6\_32  |     79.57%    |      94.644% |
-| RMNeXt 101x6\_16 |     80.07%    |      94.918% |
-| RMNeXt 152x6\_32 |     80.356%   |      80.356% |
+| RMNeXt 41x5\_16  |     78.498   |      94.086 |
+| RMNeXt 50x5\_32  |     79.076   |      94.444 |
+| RMNeXt 50x6\_32  |     79.57    |      94.644 |
+| RMNeXt 101x6\_16 |     80.07    |      94.918 |
+| RMNeXt 152x6\_32 |     80.356   |      80.356 |
 
 
 
