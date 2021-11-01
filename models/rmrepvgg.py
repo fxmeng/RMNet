@@ -125,8 +125,10 @@ class RMRep(nn.Module):
         blocks.append(self.fc)
         return nn.Sequential(*blocks)
 
-def rmrep(num_classes=1000,ratio=0.5,depth=1):     
-    return ResVGG([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+
+
+def repvgg_21(num_classes=1000,depth=2):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
                    ['rm_rep',1,1,depth],
                    ['rep_rep',2,2,1],
                    ['rm_rep',2,1,depth],
@@ -134,4 +136,85 @@ def rmrep(num_classes=1000,ratio=0.5,depth=1):
                    ['rm_rep',4,1,depth],
                    ['rep',8,2,1],
                    ['rm_rep',8,1,depth]],
-                   num_classes=num_classes,ratio=ratio)
+                   num_classes=num_classes,ratio=0)
+
+def repvgg_37(num_classes=1000,depth=4):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0)
+
+def repvgg_69(num_classes=1000,depth=8):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0)
+            
+def repvgg_133(num_classes=1000,depth=16):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0)
+
+
+
+def rmrep_21(num_classes=1000,depth=2):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0.25)
+
+def rmrep_37(num_classes=1000,depth=4):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0.25)
+
+def rmrep_69(num_classes=1000,depth=8):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0.5)
+            
+def rmrep_133(num_classes=1000,depth=16):     
+    return RMRep([['rep',1,2,2] if num_classes==1000 else ['rep',1,1,1],
+                   ['rm_rep',1,1,depth],
+                   ['rep_rep',2,2,1],
+                   ['rm_rep',2,1,depth],
+                   ['rep',4,2,1],
+                   ['rm_rep',4,1,depth],
+                   ['rep',8,2,1],
+                   ['rm_rep',8,1,depth]],
+                   num_classes=num_classes,ratio=0.75)
+
+
