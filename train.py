@@ -72,14 +72,14 @@ parser.add_argument('--multiprocessing-distributed', action='store_true',
                          'multi node data parallel training')
 best_acc1 = 0
 
-def sgd_optimizer(model, lr, momentum, weight_decay, use_custwd):
+def sgd_optimizer(model, lr, momentum, weight_decay):
     params = []
     for key, value in model.named_parameters():
         if not value.requires_grad:
             continue
         apply_weight_decay = weight_decay
         apply_lr = lr
-        if (use_custwd and ('rbr_dense' in key or 'rbr_1x1' in key)) or 'bias' in key or 'bn' in key:
+        if 'bias' in key or 'bn' in key:
             apply_weight_decay = 0
             print('set weight decay=0 for {}'.format(key))
         if 'bias' in key:
@@ -173,7 +173,7 @@ def main_worker(gpu, ngpus_per_node, args):
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
     # optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    optimizer = sgd_optimizer(model, args.lr, args.momentum, args.weight_decay, args.custwd) # better for repvgg
+    optimizer = sgd_optimizer(model, args.lr, args.momentum, args.weight_decay) # better for repvgg
     
     lr_scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=args.epochs * IMAGENET_TRAINSET_SIZE // args.batch_size // ngpus_per_node)
 
@@ -239,7 +239,10 @@ def main_worker(gpu, ngpus_per_node, args):
 
     if args.evaluate is not None:
         checkpoint = torch.load(args.evaluate)
-        model = torch.nn.DataParallel(checkpoint).cuda()
+        model.load_state_dict(checkpoint["state_dict"])
+        model = model.module.cpu().deploy()
+        model = torch.nn.DataParallel(model).cuda()
+        print(model)
         validate(val_loader, model, criterion, args)
         return
 
@@ -374,5 +377,3 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 if __name__ == '__main__':
     main()
     
-    
-
