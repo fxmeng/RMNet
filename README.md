@@ -59,7 +59,20 @@ Our model achieves the following performance on :
 | RMNeXt 101x6\_16 |     80.07    |      94.918 |
 | RMNeXt 152x6\_32 |     80.356   |      80.356 |
 
+## Citation
 
+If you find this code useful, please cite the following paper:
+
+```
+@misc{meng2021rmnet,
+      title={RMNet: Equivalently Removing Residual Connection from Networks}, 
+      author={Fanxu Meng and Hao Cheng and Jiaxin Zhuang and Ke Li and Xing Sun},
+      year={2021},
+      eprint={2111.00687},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
 
 ## Contributing
 
