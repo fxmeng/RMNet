@@ -23,7 +23,7 @@ python train.py -a rmrep_69 --dist-url 'tcp://127.0.0.1:23333' --dist-backend 'n
 
 You can download pretrained models here:
 
-- [Our pre-trained models](https://drive.google.com/drive/folders/1Mu3fXmZPm2EB9Bv17e41H3EfBOLlJYcw?usp=sharing) trained on ImageNet. 
+- Download our pre-trained models trained on ImageNet from [Google Drive](https://drive.google.com/drive/folders/1Mu3fXmZPm2EB9Bv17e41H3EfBOLlJYcw?usp=sharing) or [Baidu Cloud(提取码:0mto)](https://pan.baidu.com/s/1FB7wyU52i_-EK4DnwRxfbQ). 
 
 ## Evaluation
 
