@@ -60,7 +60,7 @@ Our model achieves the following performance on :
 | RMNeXt 152x6\_32 |     80.356   |      80.356 |
 
 ### Todo list
-mmclassification https://github.com/fxmeng/RMNet/issues/1#issue-1045412150
+mmclassification version: https://github.com/fxmeng/RMNet/issues/1#issue-1045412150
 
 | Arch         | Top-1 Accuracy(%) | Speed()  |
 | ------------ | ----------------- | -------- |
