@@ -59,6 +59,26 @@ Our model achieves the following performance on :
 | RMNeXt 101x6\_16 |     80.07    |      94.918 |
 | RMNeXt 152x6\_32 |     80.356   |      80.356 |
 
+### Todo list
+| Arch         | Top-1 Accuracy(%) | Speed()  |
+| ------------ | ----------------- | -------- |
+| RepVGG A0    | 72.41             | 3256     |
+| **RMNet A0** | **TODO**          | **3256** |
+| RepVGG A1    | 74.46             | 2339     |
+| **RMNet A1** | **TODO**          | **2339** |
+| RepVGG A2    | 76.48             | 1322     |
+| **RMNet A2** | **TODO**          | **1322** |
+| RepVGG B0    | 75.14             | 1817     |
+| **RMNet B0** | **TODO**          | **1817** |
+| RepVGG B1    | 78.37             | 685      |
+| **RMNet B1** | **TODO**          | **685**  |
+| RepVGG B2    | 78.78             | 460      |
+| **RMNet B2** | **TODO**          | **460**  |
+
+
+
+
+
 ## Citation
 
 If you find this code useful, please cite the following paper:
