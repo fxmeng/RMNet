@@ -2,6 +2,10 @@
 
 This repository is the official implementation of "[RMNet: Equivalently Removing Residual Connection from Networks](https://arxiv.org/abs/2111.00687)". 
 
+## Updates
+Nov 13, 2021, RM Opeartion now support SEBlock.
+
+
 ## Requirements
 
 To install requirements:
