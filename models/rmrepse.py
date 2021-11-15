@@ -68,24 +68,24 @@ class RMBlock(nn.Module):
             bn00 = nn.BatchNorm2d(self.out_planes)
             
             nn.init.zeros_(conv33.weight.data)
-            conv33.weight.data[self.out_planes-self.rmplanes:]=self.conv33.weight.data
-            bn33.weight.data[self.out_planes-self.rmplanes:]=self.bn33.weight.data
-            bn33.bias.data[self.out_planes-self.rmplanes:]=self.bn33.bias.data
-            bn33.running_mean.data[self.out_planes-self.rmplanes:]=self.bn33.running_mean.data
-            bn33.running_var.data[self.out_planes-self.rmplanes:]=self.bn33.running_var.data
+            conv33.weight.data[self.rmplanes:]=self.conv33.weight.data
+            bn33.weight.data[self.rmplanes:]=self.bn33.weight.data
+            bn33.bias.data[self.rmplanes:]=self.bn33.bias.data
+            bn33.running_mean.data[self.rmplanes:]=self.bn33.running_mean.data
+            bn33.running_var.data[self.rmplanes:]=self.bn33.running_var.data
             
             nn.init.zeros_(conv11.weight.data)
-            conv11.weight.data[self.out_planes-self.rmplanes:]=self.conv11.weight.data
-            bn11.weight.data[self.out_planes-self.rmplanes:]=self.bn11.weight.data
-            bn11.bias.data[self.out_planes-self.rmplanes:]=self.bn11.bias.data
-            bn11.running_mean.data[self.out_planes-self.rmplanes:]=self.bn11.running_mean.data
-            bn11.running_var.data[self.out_planes-self.rmplanes:]=self.bn11.running_var.data
+            conv11.weight.data[self.rmplanes:]=self.conv11.weight.data
+            bn11.weight.data[self.rmplanes:]=self.bn11.weight.data
+            bn11.bias.data[self.rmplanes:]=self.bn11.bias.data
+            bn11.running_mean.data[self.rmplanes:]=self.bn11.running_mean.data
+            bn11.running_var.data[self.rmplanes:]=self.bn11.running_var.data
             
             
-            bn00.weight.data[self.out_planes-self.rmplanes:]=self.bn00.weight.data
-            bn00.bias.data[self.out_planes-self.rmplanes:]=self.bn00.bias.data
-            bn00.running_mean.data[self.out_planes-self.rmplanes:]=self.bn00.running_mean.data
-            bn00.running_var.data[self.out_planes-self.rmplanes:]=self.bn00.running_var.data
+            bn00.weight.data[self.rmplanes:]=self.bn00.weight.data
+            bn00.bias.data[self.rmplanes:]=self.bn00.bias.data
+            bn00.running_mean.data[self.rmplanes:]=self.bn00.running_mean.data
+            bn00.running_var.data[self.rmplanes:]=self.bn00.running_var.data
             
             self.conv33=conv33
             self.bn33=bn33
