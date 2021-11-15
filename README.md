@@ -4,6 +4,7 @@ This repository is the official implementation of "[RMNet: Equivalently Removing
 
 ## Updates
 Nov 15, 2021, RM Opeartion now supports PreActResNet.
+
 Nov 13, 2021, RM Opeartion now supports SEBlock.
 
 
