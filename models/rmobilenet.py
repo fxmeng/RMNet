@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision
 import math
 
 
@@ -132,29 +133,9 @@ class InvertedResidual(nn.Module):
 
 
 class RMobileNet(nn.Module):
-    def __init__(self, n_class=100, t_expand=1, t_shrink=1,width_mult=1,t_free=8):
+    def __init__(self, setting, width_mult,input_channel,output_channel,last_channel, n_class=100):
         super(RMobileNet, self).__init__()
-        
-        block = InvertedResidual
-        input_channel = 32
-        last_channel = 1024
-        interverted_residual_setting =[
-            [1/t_free,64,1,2],
-            [1*t_expand,64,1,1],
-            
-            [2*t_shrink,128,1,2],
-            [1*t_expand,128,1,1],
-            
-            [2*t_shrink,256,1,2],
-            [1*t_expand,256,5,1],
-            
-            [2*t_shrink,512,1,2],
-            [1*t_expand,512,1,1]
-        ]
-        input_channel = int(input_channel * width_mult)
-        output_channel = int(64 * t_free * width_mult)
-        self.last_channel = last_channel
-        self.features = [conv_bn(3, input_channel, 1)]
+        self.features = [conv_bn(3, input_channel, 2 if n_class==1000 else 1)]
         self.features.append(nn.Sequential(
                 # dw
                 nn.Conv2d(input_channel, input_channel, 3, stride=1, padding=1, groups=input_channel, bias=False),
@@ -165,19 +146,16 @@ class RMobileNet(nn.Module):
                 nn.BatchNorm2d(output_channel),
             ))
         input_channel = output_channel
-        for t, c, n, s in interverted_residual_setting:
+        for t, c, n, s in setting:
             output_channel = int(c * width_mult)
             for i in range(n):
-                if i == 0:
-                    self.features.append(block(input_channel, output_channel, s, expand_ratio=t))
-                else:
-                    self.features.append(block(input_channel, output_channel, 1, expand_ratio=t))
+                self.features.append(InvertedResidual(input_channel, output_channel, s, expand_ratio=t))
                 input_channel = output_channel
-        self.features.append(conv_1x1_bn(input_channel, self.last_channel))
+        self.features.append(conv_1x1_bn(input_channel, last_channel))
         self.features = nn.Sequential(*self.features)
         self.classifier = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(self.last_channel, n_class),
+            nn.Linear(last_channel, n_class),
         )
 
         self._initialize_weights()
@@ -187,11 +165,14 @@ class RMobileNet(nn.Module):
         x = x.mean([2, 3])
         x = self.classifier(x)
         return x
-
-    def deploy(self):
+    def rm(self):
         for m in self.features:
             if isinstance(m,InvertedResidual):
                 m.deploy()
+        return self
+    
+    def deploy(self):
+        self.rm()
         features=[]
         for m in self.features.modules():
             if isinstance(m,nn.Conv2d) or isinstance(m,nn.BatchNorm2d) or isinstance(m,nn.PReLU) or isinstance(m,nn.ReLU6):
@@ -207,7 +188,8 @@ class RMobileNet(nn.Module):
                 new_features.append(features.pop(0))
         new_features+=features
         self.features=nn.Sequential(*new_features)
-
+        return self
+    
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -224,4 +206,90 @@ class RMobileNet(nn.Module):
                 n = m.weight.size(1)
                 m.weight.data.normal_(0, 0.01)
                 m.bias.data.zero_()
+                
+def mobilenetv1_cifar(n_class=100,width_mult=1,t_free=8):
+    input_channel = int(32 * width_mult)
+    output_channel = int(64 * t_free * width_mult)
+    last_channel = 1280
+    setting =[[1/t_free,64,1,2],
+            [1,64,1,1],
+            
+            [2,128,1,2],
+            [1,128,1,1],
+            
+            [2,256,1,2],
+            [1,256,5,1],
+            
+            [2,512,1,2],
+            [1,512,1,1]
+        ]
+    return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
 
+
+def mobilenetv1_imagenet(n_class=1000,width_mult=1,t_free=1):
+    input_channel = int(32 * width_mult)
+    output_channel = int(64 * t_free * width_mult)
+    last_channel = 1280
+    tt=3
+    setting =[[1/t_free,24*tt,1,2],
+                [1, 24*tt, 1, 1],
+                [2, 32*tt, 1, 2],
+                [1, 32*tt, 2, 1],
+                [2, 64*tt, 1, 2],
+                [1, 64*tt, 3, 1],
+                [2, 96*tt, 1, 1],
+                [1, 96*tt, 2, 1],
+                [2, 160*tt, 1, 2],
+                [1, 160*tt, 2, 1],
+                [1, 320*tt*t_free, 1, 1],
+            ]
+    return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
+
+def mobilenetv1_imagenet_1(n_class=1000,width_mult=1,t_free=1):
+    input_channel = int(32 * width_mult)
+    output_channel = int(64 * t_free * width_mult)
+    last_channel = 1280
+    tt=3
+    setting =[[1/t_free,24*tt,1,2],
+                [1, 24*tt, 1, 1],
+                [1, 32*tt, 1, 2],
+                [1, 32*tt, 2, 1],
+                [1, 64*tt, 1, 2],
+                [1, 64*tt, 3, 1],
+                [1, 96*tt, 1, 1],
+                [1, 96*tt, 2, 1],
+                [1, 160*tt, 1, 2],
+                [1, 160*tt, 2, 1],
+                [1, 320*tt*t_free, 1, 1],
+            ]
+    return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
+
+def mobilenetv2(n_class=1000,pretrained=True,width_mult=1):
+    input_channel = int(32 * width_mult)
+    output_channel = int(16 * width_mult)
+    last_channel = 1280
+    setting = [[6,24,1,2],
+            [6, 24, 1, 1],
+            [6, 32, 1, 2],
+            [6, 32, 2, 1],
+            [6, 64, 1, 2],
+            [6, 64, 3, 1],
+            [6, 96, 1, 1],
+            [6, 96, 2, 1],
+            [6, 160, 1, 2],
+            [6, 160, 2, 1],
+            [6, 320, 1, 1],]
+
+    
+    model = RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
+    if pretrained:
+        pretrain_model=torchvision.models.mobilenet_v2(pretrained=True)
+        for i in range(1,18):
+            blocks=[]
+            for m in pretrain_model.features[i].modules():
+                if isinstance(m,nn.Conv2d) or isinstance(m,nn.BatchNorm2d) or isinstance(m,nn.ReLU6):
+                    blocks.append(m)
+            pretrain_model.features[i].conv=nn.Sequential(*blocks)
+        pretrain_model.features[1]=pretrain_model.features[1].conv
+        print(model.load_state_dict(pretrain_model.state_dict(),strict=False))
+    return model
