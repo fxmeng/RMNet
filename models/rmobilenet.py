@@ -245,11 +245,10 @@ def mobilenetv1_imagenet(n_class=1000,width_mult=1,t_free=1):
             ]
     return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
 
-def mobilenetv1_imagenet_1(n_class=1000,width_mult=1,t_free=1):
+def mobilenetv1_imagenet_1(n_class=1000,width_mult=1,t_free=8,tt=4):
     input_channel = int(32 * width_mult)
     output_channel = int(64 * t_free * width_mult)
     last_channel = 1280
-    tt=3
     setting =[[1/t_free,24*tt,1,2],
                 [1, 24*tt, 1, 1],
                 [1, 32*tt, 1, 2],
