@@ -6,11 +6,11 @@ This repository is the official implementation of "[RMNet: Equivalently Removing
 
 Dec 24, 2021, RMNet Pruning:
 
-`python train_pruning.py --sr 0.0001 --threshold 0.0005`
+`python train_pruning.py --sr xxx --threshold xxx`
 
-`python train_pruning.py --eval lr_0.100000_sr_0.000100_thres_0.000500/ckpt.pth`
+`python train_pruning.py --eval xxx/ckpt.pth`
 
-`python train_pruning.py --finetune lr_0.100000_sr_0.000100_thres_0.000500/ckpt.pth`
+`python train_pruning.py --finetune xxx/ckpt.pth`
 
 Nov 15, 2021, RM Opeartion now supports PreActResNet.
 
