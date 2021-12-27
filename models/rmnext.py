@@ -143,9 +143,9 @@ class RMNeXt(nn.Module):
         super(RMNeXt, self).__init__()
         self.in_planes = min(64, base_wide)
         if num_classes==1000:
-            self.stage0 = nn.Sequential(*[RepBlock(3, self.in_planes, stride=2), RepBlock(self.in_planes, self.in_planes, stride=2)])
+            self.layer0 = nn.Sequential(*[RepBlock(3, self.in_planes, stride=2), RepBlock(self.in_planes, self.in_planes, stride=2)])
         else:
-            self.stage0 = RepBlock(3, self.in_planes, stride=1)
+            self.layer0 = RepBlock(3, self.in_planes, stride=1)
         self.layer1 = self._make_layer(base_wide, num_blocks[0], expand_ratio, cpg, stride=1)
         self.layer2 = self._make_layer(base_wide * 2, num_blocks[1], expand_ratio, cpg * 2, stride=2)
         self.layer3 = self._make_layer(base_wide * 4, num_blocks[2], expand_ratio, cpg * 4, stride=2)
