@@ -3,22 +3,6 @@ import torch.nn as nn
 import torchvision
 import math
 
-
-def conv_bn(inp, oup, stride):
-    return nn.Sequential(
-        nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
-        nn.BatchNorm2d(oup),
-        nn.ReLU6(inplace=True)
-    )
-
-
-def conv_1x1_bn(inp, oup):
-    return nn.Sequential(
-        nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
-        nn.BatchNorm2d(oup),
-        nn.ReLU6(inplace=True)
-    )
-
 def fuse_cbcb(conv1,bn1,conv2,bn2):
     inp=conv1.in_channels
     mid=conv1.out_channels
@@ -30,12 +14,13 @@ def fuse_cbcb(conv1,bn1,conv2,bn2):
     return fused_conv,bn2
 
 class InvertedResidual(nn.Module):
-    def __init__(self, inp, oup, stride, expand_ratio):
+    def __init__(self, inp, oup, stride, expand_ratio, free=1):
         super(InvertedResidual, self).__init__()
         self.in_planes=inp
         self.out_planes=oup
         
         self.stride = stride
+        self.free = free
         assert stride in [1, 2]
 
         hidden_dim = round(inp * expand_ratio)
@@ -44,7 +29,7 @@ class InvertedResidual(nn.Module):
         
         self.conv = nn.Sequential(
             # pw
-            nn.Conv2d(inp, hidden_dim, 1, 1, 0, bias=False),
+            nn.Conv2d(inp*free, hidden_dim, 1, 1, 0, bias=False),
             nn.BatchNorm2d(hidden_dim),
             nn.ReLU6(inplace=True),
             # dw
@@ -52,17 +37,18 @@ class InvertedResidual(nn.Module):
             nn.BatchNorm2d(hidden_dim),
             nn.ReLU6(inplace=True),
             # pw-linear
-            nn.Conv2d(hidden_dim, oup, 1, 1, 0, bias=False),
-            nn.BatchNorm2d(oup),
+            nn.Conv2d(hidden_dim, oup*free, 1, 1, 0, bias=False),
+            nn.BatchNorm2d(oup*free),
         )
         if self.use_res_connect:
             self.running1 = nn.BatchNorm2d(self.in_planes,affine=False)
-            self.running2 = nn.BatchNorm2d(self.out_planes,affine=False)
+            self.running2 = nn.BatchNorm2d(self.in_planes*free,affine=False)
 
     def forward(self, x):
         if self.use_res_connect:
-            self.running1(x)
-            out=x + self.conv(x)
+            out = self.conv(x)
+            out[:,:self.in_planes] += x[:,:self.in_planes] 
+            self.running1(x[:,:self.in_planes])
             self.running2(out)
             return out
         else:
@@ -70,21 +56,21 @@ class InvertedResidual(nn.Module):
         
     def deploy(self):
         if self.use_res_connect:
-            idconv1 = nn.Conv2d(self.in_planes, self.mid_planes, kernel_size=1, bias=False).eval()
+            idconv1 = nn.Conv2d(self.in_planes*self.free, self.mid_planes, kernel_size=1, bias=False).eval()
             idbn1=nn.BatchNorm2d(self.mid_planes).eval()
 
             nn.init.dirac_(idconv1.weight.data[:self.in_planes])
             bn_var_sqrt=torch.sqrt(self.running1.running_var + self.running1.eps)
-            idbn1.weight.data[:self.out_planes]=bn_var_sqrt
-            idbn1.bias.data[:self.out_planes]=self.running1.running_mean
-            idbn1.running_mean.data[:self.out_planes]=self.running1.running_mean
-            idbn1.running_var.data[:self.out_planes]=self.running1.running_var
+            idbn1.weight.data[:self.in_planes]=bn_var_sqrt
+            idbn1.bias.data[:self.in_planes]=self.running1.running_mean
+            idbn1.running_mean.data[:self.in_planes]=self.running1.running_mean
+            idbn1.running_var.data[:self.in_planes]=self.running1.running_var
 
-            idconv1.weight.data[self.out_planes:]=self.conv[0].weight.data
-            idbn1.weight.data[self.out_planes:]=self.conv[1].weight.data
-            idbn1.bias.data[self.out_planes:]=self.conv[1].bias.data
-            idbn1.running_mean.data[self.out_planes:]=self.conv[1].running_mean
-            idbn1.running_var.data[self.out_planes:]=self.conv[1].running_var
+            idconv1.weight.data[self.in_planes:]=self.conv[0].weight.data
+            idbn1.weight.data[self.in_planes:]=self.conv[1].weight.data
+            idbn1.bias.data[self.in_planes:]=self.conv[1].bias.data
+            idbn1.running_mean.data[self.in_planes:]=self.conv[1].running_mean
+            idbn1.running_var.data[self.in_planes:]=self.conv[1].running_var
             idrelu1 = nn.PReLU(self.mid_planes)
             torch.nn.init.ones_(idrelu1.weight.data[:self.in_planes])
             torch.nn.init.zeros_(idrelu1.weight.data[self.in_planes:])
@@ -95,25 +81,25 @@ class InvertedResidual(nn.Module):
             idbn2=nn.BatchNorm2d(self.mid_planes).eval()
 
             nn.init.dirac_(idconv2.weight.data[:self.in_planes],groups=self.in_planes)
-            idbn2.weight.data[:self.out_planes]=idbn1.weight.data[:self.out_planes]
-            idbn2.bias.data[:self.out_planes]=idbn1.bias.data[:self.out_planes]
-            idbn2.running_mean.data[:self.out_planes]=idbn1.running_mean.data[:self.out_planes]
-            idbn2.running_var.data[:self.out_planes]=idbn1.running_var.data[:self.out_planes]
+            idbn2.weight.data[:self.in_planes]=idbn1.weight.data[:self.in_planes]
+            idbn2.bias.data[:self.in_planes]=idbn1.bias.data[:self.in_planes]
+            idbn2.running_mean.data[:self.in_planes]=idbn1.running_mean.data[:self.in_planes]
+            idbn2.running_var.data[:self.in_planes]=idbn1.running_var.data[:self.in_planes]
 
-            idconv2.weight.data[self.out_planes:]=self.conv[3].weight.data
-            idbn2.weight.data[self.out_planes:]=self.conv[4].weight.data
-            idbn2.bias.data[self.out_planes:]=self.conv[4].bias.data
-            idbn2.running_mean.data[self.out_planes:]=self.conv[4].running_mean
-            idbn2.running_var.data[self.out_planes:]=self.conv[4].running_var
+            idconv2.weight.data[self.in_planes:]=self.conv[3].weight.data
+            idbn2.weight.data[self.in_planes:]=self.conv[4].weight.data
+            idbn2.bias.data[self.in_planes:]=self.conv[4].bias.data
+            idbn2.running_mean.data[self.in_planes:]=self.conv[4].running_mean
+            idbn2.running_var.data[self.in_planes:]=self.conv[4].running_var
             idrelu2 = nn.PReLU(self.mid_planes)
             torch.nn.init.ones_(idrelu2.weight.data[:self.in_planes])
             torch.nn.init.zeros_(idrelu2.weight.data[self.in_planes:])
 
-            idconv3 = nn.Conv2d(self.mid_planes, self.out_planes, kernel_size=1, bias=False).eval()
-            idbn3=nn.BatchNorm2d(self.out_planes).eval()
+            idconv3 = nn.Conv2d(self.mid_planes, self.in_planes*self.free, kernel_size=1, bias=False).eval()
+            idbn3=nn.BatchNorm2d(self.in_planes*self.free).eval()
 
-            nn.init.dirac_(idconv3.weight.data[:,:self.out_planes])
-            idconv3.weight.data[:,self.out_planes:],bias=self.fuse(self.conv[6].weight,self.conv[7].running_mean,self.conv[7].running_var,self.conv[7].weight,self.conv[7].bias,self.conv[7].eps)
+            nn.init.dirac_(idconv3.weight.data[:,:self.in_planes])
+            idconv3.weight.data[:,self.in_planes:],bias=self.fuse(self.conv[6].weight,self.conv[7].running_mean,self.conv[7].running_var,self.conv[7].weight,self.conv[7].bias,self.conv[7].eps)
             bn_var_sqrt=torch.sqrt(self.running2.running_var + self.running2.eps)
             idbn3.weight.data=bn_var_sqrt
             idbn3.bias.data=self.running2.running_mean
@@ -133,25 +119,38 @@ class InvertedResidual(nn.Module):
 
 
 class RMobileNet(nn.Module):
-    def __init__(self, setting, width_mult,input_channel,output_channel,last_channel, n_class=100):
+    def __init__(self, setting, input_channel, output_channel, last_channel, t_free=1, n_class=100):
         super(RMobileNet, self).__init__()
-        self.features = [conv_bn(3, input_channel, 2 if n_class==1000 else 1)]
-        self.features.append(nn.Sequential(
+        self.features = [
+            nn.Sequential(
+                nn.Conv2d(3, input_channel, 3, 2 if n_class==1000 else 1, 1, bias=False),
+                nn.BatchNorm2d(input_channel),
+                nn.ReLU6(inplace=True)
+            )
+        ]
+        self.features.append(
+            nn.Sequential(
                 # dw
                 nn.Conv2d(input_channel, input_channel, 3, stride=1, padding=1, groups=input_channel, bias=False),
                 nn.BatchNorm2d(input_channel),
                 nn.ReLU6(inplace=True),
                 # pw-linear
-                nn.Conv2d(input_channel, output_channel, 1, 1, 0, bias=False),
-                nn.BatchNorm2d(output_channel),
-            ))
+                nn.Conv2d(input_channel, output_channel * t_free, 1, 1, 0, bias=False),
+                nn.BatchNorm2d(output_channel * t_free),
+            )
+        )
         input_channel = output_channel
-        for t, c, n, s in setting:
-            output_channel = int(c * width_mult)
+        for t, output_channel, n, s in setting:
             for i in range(n):
-                self.features.append(InvertedResidual(input_channel, output_channel, s, expand_ratio=t))
+                self.features.append(InvertedResidual(input_channel, output_channel, s, expand_ratio=t,free=t_free))
                 input_channel = output_channel
-        self.features.append(conv_1x1_bn(input_channel, last_channel))
+        self.features.append(
+            nn.Sequential(
+                nn.Conv2d(input_channel * t_free, last_channel, 1, 1, 0, bias=False),
+                nn.BatchNorm2d(last_channel),
+                nn.ReLU6(inplace=True)
+            )
+        )
         self.features = nn.Sequential(*self.features)
         self.classifier = nn.Sequential(
             nn.Dropout(0.2),
@@ -209,59 +208,44 @@ class RMobileNet(nn.Module):
                 
 def mobilenetv1_cifar(n_class=100,width_mult=1,t_free=8):
     input_channel = int(32 * width_mult)
-    output_channel = int(64 * t_free * width_mult)
-    last_channel = 1280
-    setting =[[1/t_free,64,1,2],
-            [1,64,1,1],
-            
-            [2,128,1,2],
-            [1,128,1,1],
-            
-            [2,256,1,2],
-            [1,256,5,1],
-            
-            [2,512,1,2],
-            [1,512,1,1]
+    output_channel = int(64 * width_mult)
+    last_channel = 1024
+    setting =[
+        [1,int(64 * width_mult),1,2],
+        [1,int(64 * width_mult),1,1],
+
+        [2,int(128 * width_mult),1,2],
+        [1,int(128 * width_mult),1,1],
+
+        [2,int(256 * width_mult),1,2],
+        [1,int(256 * width_mult),5,1],
+
+        [2,int(512 * width_mult),1,2],
+        [1,int(512 * width_mult),1,1]
         ]
-    return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
+    return RMobileNet(setting, input_channel,output_channel,last_channel,t_free,n_class)
 
-def mobilenetv1_imagenet(n_class=1000,width_mult=1,t_free=8,tt=4):
-    input_channel = int(32 * width_mult)
-    output_channel = int(64 * t_free * width_mult)
-    last_channel = 1280
-    setting =[[1/t_free,24*tt,1,2],
-                [1, 24*tt, 1, 1],
-                [1, 32*tt, 1, 2],
-                [1, 32*tt, 2, 1],
-                [1, 64*tt, 1, 2],
-                [1, 64*tt, 3, 1],
-                [1, 96*tt, 1, 1],
-                [1, 96*tt, 2, 1],
-                [1, 160*tt, 1, 2],
-                [1, 160*tt, 2, 1],
-                [1, 320*tt*t_free, 1, 1],
-            ]
-    return RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
-
-def mobilenetv2(n_class=1000,pretrained=True,width_mult=1):
+def mobilenetv2_imagenet(n_class=1000,width_mult=1,t_free=1,pretrained=True):
     input_channel = int(32 * width_mult)
     output_channel = int(16 * width_mult)
     last_channel = 1280
-    setting = [[6,24,1,2],
-            [6, 24, 1, 1],
-            [6, 32, 1, 2],
-            [6, 32, 2, 1],
-            [6, 64, 1, 2],
-            [6, 64, 3, 1],
-            [6, 96, 1, 1],
-            [6, 96, 2, 1],
-            [6, 160, 1, 2],
-            [6, 160, 2, 1],
-            [6, 320, 1, 1],]
+    setting = [
+        [6,int(24 * width_mult),1,2],
+        [6, int(24 * width_mult), 1, 1],
+        [6, int(32 * width_mult), 1, 2],
+        [6, int(32 * width_mult), 2, 1],
+        [6, int(64 * width_mult), 1, 2],
+        [6, int(64 * width_mult), 3, 1],
+        [6, int(96 * width_mult), 1, 1],
+        [6, int(96 * width_mult), 2, 1],
+        [6, int(160 * width_mult), 1, 2],
+        [6, int(160 * width_mult), 2, 1],
+        [6, int(320 * width_mult), 1, 1]
+    ]
 
-    
-    model = RMobileNet(setting, width_mult,input_channel,output_channel,last_channel,n_class)
+    model = RMobileNet(setting, input_channel,output_channel,last_channel,t_free,n_class)
     if pretrained:
+        assert t_free==1
         pretrain_model=torchvision.models.mobilenet_v2(pretrained=True)
         for i in range(1,18):
             blocks=[]
