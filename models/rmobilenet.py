@@ -208,20 +208,20 @@ class RMobileNet(nn.Module):
                 
 def mobilenetv1_cifar(n_class=100,width_mult=1,t_free=8):
     input_channel = int(32 * width_mult)
-    output_channel = int(64 * width_mult)
+    output_channel = int(32 * width_mult)
     last_channel = 1024
     setting =[
-        [1,int(64 * width_mult),1,2],
-        [1,int(64 * width_mult),1,1],
+        [2,int(32 * width_mult),1,2],
+        [3,int(32 * width_mult),1,1],
 
-        [2,int(128 * width_mult),1,2],
-        [1,int(128 * width_mult),1,1],
+        [4,int(64 * width_mult),1,2],
+        [3,int(64 * width_mult),1,1],
 
-        [2,int(256 * width_mult),1,2],
-        [1,int(256 * width_mult),5,1],
+        [4,int(128 * width_mult),1,2],
+        [3,int(128 * width_mult),5,1],
 
-        [2,int(512 * width_mult),1,2],
-        [1,int(512 * width_mult),1,1]
+        [4,int(256 * width_mult),1,2],
+        [3,int(256 * width_mult),1,1]
         ]
     return RMobileNet(setting, input_channel,output_channel,last_channel,t_free,n_class)
 
