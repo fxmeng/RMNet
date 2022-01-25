@@ -4,6 +4,10 @@ This repository is the official implementation of "[RMNet: Equivalently Removing
 
 ## Updates
 
+Jan 25,2022, RM+AMC purning:
+
+
+
 Dec 24, 2021, RMNet Pruning:
 
 `python train_pruning.py --sr xxx --threshold xxx`
@@ -51,6 +55,18 @@ python train.py -a rmrep_69 -e checkpoint/rmrep_69.pth.tar [imagenet-folder with
 ## Results
 
 Our model achieves the following performance on :
+
+### Help pruning achieve better performance
+| Method | Speed(Imgs/Sec) | Acc(%)|
+| ----------------- | ----------------- | ---------- |
+|Baseline|3752|71.79|
+|AMC(0.75)|4873|70.94|
+|AMC(0.7)|4949|70.84|
+|AMC(0.5)|5483|68.89|
+|RM+AMC(0.75)|5120|**73.21**|
+|RM+AMC(0.7)|5238|72.63|
+|RM+AMC(0.6)|5675|71.88|
+|RM+AMC(0.5)|**6250**|71.01|
 
 ### Help RepVGG achieve better performance even when the depth is large
 | Arch                    | Top-1 Accuracy(%) | Top-5 Accuracy(%) | Train FLOPs(G) | Test FLOPs(M) |
