@@ -6,6 +6,7 @@ This repository is the official implementation of "[RMNet: Equivalently Removing
 
 Jan 25,2022, RM+AMC purning:
 
+https://github.com/fxmeng/RMNet/blob/aec110b528c2646a19a20777bd5b93500e9b74a3/RM+AMC/README.md
 
 
 Dec 24, 2021, RMNet Pruning:
