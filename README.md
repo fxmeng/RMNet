@@ -102,4 +102,4 @@ If you find this code useful, please cite the following paper:
 
 ## Contributing
 
-Our code is based on [RepVGG](https://github.com/DingXiaoH/RepVGG)
+Our code is based on [RepVGG](https://github.com/DingXiaoH/RepVGG) and [nni/amc pruning](https://github.com/microsoft/nni/tree/master/examples/model_compress/pruning/amc)
