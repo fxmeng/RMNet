@@ -39,12 +39,6 @@ To train the models in the paper, run this command:
 python train.py -a rmrep_69 --dist-url 'tcp://127.0.0.1:23333' --dist-backend 'nccl' --multiprocessing-distributed --world-size 1 --rank 0 --workers 32 [imagenet-folder with train and val folders]
 ```
 
-## Our Pre-trained Models
-
-You can download pretrained models here:
-
-- Download our pre-trained models trained on ImageNet from [Google Drive](https://drive.google.com/drive/folders/1Mu3fXmZPm2EB9Bv17e41H3EfBOLlJYcw?usp=sharing) or [Baidu Cloud(提取码:0mto)](https://pan.baidu.com/s/1FB7wyU52i_-EK4DnwRxfbQ). 
-
 ## Evaluation
 
 To evaluate our pre-trained models trained on ImageNet, run:
@@ -57,7 +51,7 @@ python train.py -a rmrep_69 -e checkpoint/rmrep_69.pth.tar [imagenet-folder with
 
 Our model achieves the following performance on :
 
-### Help pruning achieve better performance
+### Help pruning achieve better performance [Baidu Cloud(提取码:1jw2)](https://pan.baidu.com/s/1tCq7JWRKr3BuwgBlyF7ZPg )
 | Method | Speed(Imgs/Sec) | Acc(%)|
 | ----------------- | ----------------- | ---------- |
 |Baseline|3752|71.79|
@@ -82,7 +76,7 @@ Our model achieves the following performance on :
 | **RepVGG-133(RM 0.75)** | **74.560**        | **92.000**        | **10.6**    | **15.1**   |
 
 
-### Image Classification on ImageNet
+### Image Classification on ImageNet [Baidu Cloud(提取码:0mto)](https://pan.baidu.com/s/1FB7wyU52i_-EK4DnwRxfbQ). 
 | Model name         | Top 1 Accuracy(%)  | Top 5 Accuracy(%) |
 | ------------------ |---------------- | -------------- |
 | RMNeXt 41x5\_16  |     78.498   |      94.086 |
@@ -90,28 +84,6 @@ Our model achieves the following performance on :
 | RMNeXt 50x6\_32  |     79.57    |      94.644 |
 | RMNeXt 101x6\_16 |     80.07    |      94.918 |
 | RMNeXt 152x6\_32 |     80.356   |      80.356 |
-
-### Todo list
-mmclassification version: https://github.com/fxmeng/RMNet/issues/1#issue-1045412150
-
-| Arch         | Top-1 Accuracy(%) | Speed()  |
-| ------------ | ----------------- | -------- |
-| RepVGG A0    | 72.41             | 3256     |
-| **RMNet A0** | **TODO**          | **3256** |
-| RepVGG A1    | 74.46             | 2339     |
-| **RMNet A1** | **TODO**          | **2339** |
-| RepVGG A2    | 76.48             | 1322     |
-| **RMNet A2** | **TODO**          | **1322** |
-| RepVGG B0    | 75.14             | 1817     |
-| **RMNet B0** | **TODO**          | **1817** |
-| RepVGG B1    | 78.37             | 685      |
-| **RMNet B1** | **TODO**          | **685**  |
-| RepVGG B2    | 78.78             | 460      |
-| **RMNet B2** | **TODO**          | **460**  |
-
-
-
-
 
 ## Citation
 
