@@ -1,6 +1,6 @@
 # RMNet: Equivalently Removing Residual Connection from Networks
 
-This repository is the official implementation of "[RMNet: Equivalently Removing Residual Connection from Networks](https://arxiv.org/abs/2111.00687)". 
+This repository is the official implementation of "[RMNet: Equivalently Removing Residual Connection from Networks](https://arxiv.org/abs/2111.00687)". Welcome to discuss this paper with me on [知乎](https://zhuanlan.zhihu.com/p/453479354)
 
 ## Updates
 
