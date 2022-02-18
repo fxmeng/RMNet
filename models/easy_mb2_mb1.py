@@ -38,8 +38,6 @@ def rm_r_InvertedResidual(block):
     nn.init.zeros_(idconv2.bias.data[:inp])
     torch.nn.init.ones_(idrelu2.weight.data[:inp])
     
-    
-    
     #merge conv3 and bn3
     conv3=nn.utils.fuse_conv_bn_eval(block.conv[2],block.conv[3])
     #new conv3
@@ -49,7 +47,6 @@ def rm_r_InvertedResidual(block):
     idconv3.bias.data=conv3.bias.data
     #merge input featuremaps to output featuremaps
     nn.init.dirac_(idconv3.weight.data[:,:inp])
-    
     
     return [idconv1,idrelu1,idconv2,idrelu2,idconv3]
 
@@ -88,7 +85,6 @@ def mobilenetv2_to_mobilenetv1(model):
             new_features.append(m)
     model.features=nn.Sequential(*new_features)
     return model
-
 
 model=mobilenet_v2()
 x=torch.randn(2,3,224,224)
