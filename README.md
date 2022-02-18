@@ -4,6 +4,8 @@ This repository is the official implementation of "[RMNet: Equivalently Removing
 
 ## Updates
 
+Feb 18,2022, For better understanding, we implement a simpilify version RM Operation on [ResNet](models/easy_resnet2vgg.py) and [MobileNetV2](models/easy_mb2_mb1.py).
+
 Jan 25,2022, RM+AMC purning:
 
 https://github.com/fxmeng/RMNet/blob/aec110b528c2646a19a20777bd5b93500e9b74a3/RM+AMC/README.md
