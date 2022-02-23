@@ -49,9 +49,7 @@ def resnet50_to_vgg(model):
             downsample=nn.utils.fuse_conv_bn_eval(block.downsample[0],block.downsample[1])
             idconv3.weight.data[:,:in_planes]=downsample.weight.data
             idconv3.bias.data+=downsample.bias.data
-        #return nn.Sequential(*[idconv1,block.relu,idconv2,block.relu,idconv3,block.relu])
-        return nn.Sequential(*[idconv1,nn.BatchNorm2d(mid_planes),block.relu,idconv2,nn.BatchNorm2d(mid_planes),block.relu,idconv3,nn.BatchNorm2d(out_planes),block.relu])
-
+        return nn.Sequential(*[idconv1,block.relu,idconv2,block.relu,idconv3,block.relu])
 
     model.layer1=nn.Sequential(*[rm_r_Bottleneck(block) for block in model.layer1])
     model.layer2=nn.Sequential(*[rm_r_Bottleneck(block) for block in model.layer2])
