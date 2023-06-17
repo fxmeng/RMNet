@@ -53,7 +53,7 @@ python train.py -a rmrep_69 -e checkpoint/rmrep_69.pth.tar [imagenet-folder with
 
 Our model achieves the following performance on :
 
-### Help pruning achieve better performance [Baidu Cloud(提取码:1jw2)](https://pan.baidu.com/s/1tCq7JWRKr3BuwgBlyF7ZPg )
+### Help pruning achieve better performance [drive.google](https://drive.google.com/drive/folders/1Mu3fXmZPm2EB9Bv17e41H3EfBOLlJYcw?usp=share_link)
 | Method | Speed(Imgs/Sec) | Acc(%)|
 | ----------------- | ----------------- | ---------- |
 |Baseline|3752|71.79|
@@ -78,7 +78,7 @@ Our model achieves the following performance on :
 | **RepVGG-133(RM 0.75)** | **74.560**        | **92.000**        | **10.6**    | **15.1**   |
 
 
-### Image Classification on ImageNet [Baidu Cloud(提取码:0mto)](https://pan.baidu.com/s/1FB7wyU52i_-EK4DnwRxfbQ). 
+### Image Classification on ImageNet [drive.google](https://drive.google.com/drive/folders/1Mu3fXmZPm2EB9Bv17e41H3EfBOLlJYcw?usp=share_link). 
 | Model name         | Top 1 Accuracy(%)  | Top 5 Accuracy(%) |
 | ------------------ |---------------- | -------------- |
 | RMNeXt 41x5\_16  |     78.498   |      94.086 |
